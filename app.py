@@ -37,7 +37,7 @@ st.markdown(
     **Lógica del modelo:**
     - **Rendimiento esperado** → ROI histórico promedio de cada producto (crecimiento año a año)
     - **Riesgo** → Desviación estándar histórica del ROI comercial
-    - **Diversificación** → Correlación entre los ROI de los productos
+    - **Diversificación** → Matriz de covarianza entre los ROI de los productos
     - **Frontera Eficiente** → Combinaciones óptimas riesgo-rendimiento (simulación Monte Carlo)
     - **Máximo Sharpe** → La cartera que mejor compensa el riesgo asumido
 
@@ -182,7 +182,6 @@ try:
     # ─────────────────────────────────────────────────────────
     rendimientos_esperados = df_roi.mean()       # ROI promedio por producto
     riesgos = df_roi.std()                       # Desv. estándar del ROI
-    matriz_correlacion = df_roi.corr()
     matriz_covarianza = df_roi.cov()
 
     # ─────────────────────────────────────────────────────────
@@ -252,40 +251,24 @@ try:
     st.divider()
 
     # ─────────────────────────────────────────────────────────
-    # Sección 3: Matrices de Correlación y Covarianza
+    # Sección 3: Matriz de Covarianza
     # ─────────────────────────────────────────────────────────
-    st.header("3️⃣ Correlación y Covarianza entre Productos")
+    st.header("3️⃣ Matriz de Covarianza entre Productos")
     st.markdown(
-        "La **correlación** mide qué tan sincronizados se mueven los ROI de los productos. "
-        "Una correlación baja (o negativa) permite mayor **diversificación** y reduce el riesgo del portafolio."
+        "La **covarianza** captura cómo se mueven conjuntamente los ROI de los productos. "
+        "Es la base matemática para calcular el riesgo del portafolio y encontrar combinaciones diversificadas."
     )
 
-    col_corr, col_cov = st.columns(2)
+    col_cov_tab, col_cov_heat = st.columns(2)
 
-    with col_corr:
-        st.subheader("Matriz de Correlación")
-        st.dataframe(
-            matriz_correlacion.style.format("{:.4f}").background_gradient(cmap="RdYlGn", axis=None),
-            use_container_width=True,
-        )
-        fig_corr = px.imshow(
-            matriz_correlacion,
-            text_auto=".2f",
-            color_continuous_scale="RdYlGn",
-            zmin=-1,
-            zmax=1,
-            title="Heatmap de Correlación",
-            aspect="auto",
-        )
-        fig_corr.update_layout(template="plotly_white")
-        st.plotly_chart(fig_corr, use_container_width=True)
-
-    with col_cov:
-        st.subheader("Matriz de Covarianza")
+    with col_cov_tab:
+        st.subheader("Tabla de Covarianza")
         st.dataframe(
             matriz_covarianza.style.format("{:.6f}"),
             use_container_width=True,
         )
+
+    with col_cov_heat:
         fig_cov = px.imshow(
             matriz_covarianza,
             text_auto=".4f",
@@ -478,7 +461,7 @@ try:
     # ─────────────────────────────────────────────────────────
     # Sección 6: Comparativo productos vs portafolio óptimo
     # ─────────────────────────────────────────────────────────
-    st.header("6️⃣ Comparativo: Productos Individuales vs Portafolio Óptimo")
+    st.header("6️⃣ Mapa Riesgo-Rendimiento: Productos vs Portafolio Óptimo")
 
     fig_comp = go.Figure()
 
